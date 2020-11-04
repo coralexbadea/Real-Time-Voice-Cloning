@@ -9,10 +9,13 @@ import numpy as np
 import soundfile as sf
 import librosa
 import argparse
+from tika import parser as prs
 import torch
 import sys
 import re
 from audioread.exceptions import NoBackendError
+
+
 
 if __name__ == '__main__':
     ## Info & args
@@ -30,7 +33,9 @@ if __name__ == '__main__':
                         help="Path to a saved vocoder")
     parser.add_argument("-p", "--path_voice", type=Path, 
                         default="/content/drive/My Drive/angelina.mp3",
-                        help="Path to a saved vocoder")
+                        help="Path to the file.mp3 with voice that we want to clone")
+    parser.add_argument("-f", "--pdf_file", type=Path, 
+                        help="Path pdf file")
     parser.add_argument("--low_mem", action="store_true", help=\
         "If True, the memory used by the synthesizer will be freed after each use. Adds large "
         "overhead but allows to save some GPU memory for lower-end GPUs.")
@@ -160,9 +165,13 @@ if __name__ == '__main__':
     print("Created the embedding")
     
     
-    ## Generating the spectrogram
-    text = input("Write a sentence (+-20 words) to be synthesized:\n")
     
+    ## Generating the spectrogram
+    if not args.pdf_file:
+      text = input("Write a sentence (+-20 words) to be synthesized:\n")
+    else:
+      raw = prs.from_file("{}".format(args.pdf_file))
+      text = raw['content']
     # The synthesizer works in batch, so you need to put your data in a list or numpy array
     
 
