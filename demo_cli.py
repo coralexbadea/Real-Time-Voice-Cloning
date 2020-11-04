@@ -11,6 +11,7 @@ import librosa
 import argparse
 import torch
 import sys
+import re
 from audioread.exceptions import NoBackendError
 
 if __name__ == '__main__':
@@ -132,19 +133,7 @@ if __name__ == '__main__':
     print("Interactive generation loop")
     num_generated = 0
 
-    def group(lst, n):
-      while (len(lst) % n != 0):
-        lst += " "
-      for i in range(0, len(lst), n):
-        val = lst[i:i+n]
-        if len(val) == n:
-          yield list(val)
-
-    def convert(s): 
-      new = ""   
-      for x in s: 
-        new += x  
-      return new 
+  
 
     # Get the reference audio filepath
     message = "Reference voice: enter an audio filepath of a voice to be cloned (mp3, " \
@@ -175,7 +164,9 @@ if __name__ == '__main__':
     text = input("Write a sentence (+-20 words) to be synthesized:\n")
     
     # The synthesizer works in batch, so you need to put your data in a list or numpy array
-    texts = list(group(text.split(" "), 15))
+    
+
+    texts = list(re.split("[!.] ", text))
     
    
     for text in texts:
@@ -191,7 +182,7 @@ if __name__ == '__main__':
           # passing return_alignments=True
           print([' '.join(text)])
          
-          specs = synthesizer.synthesize_spectrograms([' '.join(text)], embeds)
+          specs = synthesizer.synthesize_spectrograms([text], embeds)
           spec = specs[0]
           print("Created the mel spectrogram")
           
